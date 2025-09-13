@@ -1,0 +1,10 @@
+[deps]
+ApproxFun = "28f2ccd6-bb30-5033-b560-165f7b14dc2f"
+DifferentialEquations = "0c46a032-eb83-5123-abaf-570d42b7fbaa"
+ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
+GLMakie = "e9467ef8-e4e7-5192-8a1a-b1aee30e663a"
+Grassmann = "4df31cd9-4c27-5bea-88d0-e6a7146666d8"
+IntervalArithmetic = "d1acc4aa-44c8-5952-acd4-ba5d80a2a253"
+JLD2 = "033835bb-8acc-5ee8-8aae-3f567f8a3819"
+RadiiPolynomial = "f2081a94-c849-46b6-8dc9-07bb90ed72a9"
+TaylorSeries = "6aa5eb33-94cf-58f4-a9d0-e4b2c4fc25ea"
