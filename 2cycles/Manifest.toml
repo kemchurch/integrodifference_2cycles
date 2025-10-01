@@ -1,8 +1,8 @@
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.11.4"
+julia_version = "1.11.1"
 manifest_format = "2.0"
-project_hash = "9355e5621708b8a713d9814c5cd631bb445ff448"
+project_hash = "439f88d63551a22af212c15ed74fcc4d9cab96aa"
 
 [[deps.ADTypes]]
 git-tree-sha1 = "e2478490447631aedba0823d4d7a80b2cc8cdb32"
@@ -1169,6 +1169,12 @@ git-tree-sha1 = "012e604e1c7458645cb8b436f8fba789a51b257f"
 uuid = "9b13fd28-a010-5f03-acff-a1bbcff69959"
 version = "1.0.0"
 
+[[deps.Infiltrator]]
+deps = ["InteractiveUtils", "Markdown", "REPL", "UUIDs"]
+git-tree-sha1 = "5c248f54dd39381e320f63363e1fbd12f8a5a822"
+uuid = "5903a43b-9cc3-4c30-8d17-598619ec4e9b"
+version = "1.9.3"
+
 [[deps.InfiniteArrays]]
 deps = ["ArrayLayouts", "FillArrays", "Infinities", "LazyArrays", "LinearAlgebra"]
 git-tree-sha1 = "c691bb4e60abe42f76fba8083dd50122e97bbd7b"
@@ -1838,7 +1844,7 @@ version = "3.2.4+0"
 [[deps.OpenLibm_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "05823500-19ac-5b8b-9628-191a04bc5112"
-version = "0.8.1+4"
+version = "0.8.1+2"
 
 [[deps.OpenSSL_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]

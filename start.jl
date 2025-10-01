@@ -1,6 +1,9 @@
-using LinearAlgebra, Grassmann, ForwardDiff
+using LinearAlgebra, ForwardDiff
 
-basis"4"
+import Grassmann
+import Grassmann.∧
+
+Grassmann.basis"4"
 
 function Angle(z;branch_cut=pi)
    angle_shift = pi - branch_cut
@@ -66,7 +69,7 @@ function Evans_system_exterior(u,p,t)
     df = p[2]
     mode = p[3]
     σ = p[4]
-    return A_exterior(λ,df,N(t/σ,λ₃, λ₄, a, X),M(t/σ,λ₃, λ₄, a, X))*u - mode*u
+    return A_exterior(λ,df,N(t/σ,λ₁, λ₂, a, X),M(t/σ,λ₁, λ₂, a, X))*u - mode*u
 end
 
 function Evans_evaluate(λ,L,df,n₊,n₋;σ=10)
@@ -81,7 +84,7 @@ function Evans_evaluate(λ,L,df,n₊,n₋;σ=10)
     return (ext4_embedding(W₋)∧ext4_embedding(W₊)).v[1]
 end
 
-function ext4_embedding(vect;b=basis"4")
+function ext4_embedding(vect;b=Grassmann.basis"4")
     # Embed a vector in \C^4 or \C^6 into ∧^1(\C^4) or ∧^2(\C^4)
     _,_,v₁, v₂, v₃, v₄, v₁₂, v₁₃, v₁₄, v₂₃, v₂₄, v₃₄, v₁₂₃, v₁₂₄, v₁₃₄, v₂₃₄, v₁₂₃₄ = b
     if !( (length(vect)==4) | (length(vect)==6) )
@@ -142,7 +145,7 @@ end
 printstyled("::: Starting LOGISTIC growth function proofs :::\n ",color=:red)
 include(raw"logistic\main.jl")
 printstyled("::: Starting Evans function calculations for LOGISITC growth function :::\n ",color=:red)
-df = x->logistic_prime(x,r)
+df = x->logistic_prime(x,ρ)
 μ = lazy_μ(df,n₊,n₋)
 println("μ = "*string(μ)*" \n ")
 ϵ₁ = 0.1
@@ -158,7 +161,7 @@ evansplot = GLMakie.lines!(axEvans_logistic,real(evans_curve),imag(evans_curve),
 printstyled("::: Starting RICKER growth function proofs :::\n ",color=:red)
 include(raw"ricker\main.jl")
 printstyled("::: Starting Evans function calculations for RICKER growth function :::\n ",color=:red)
-df = x->ricker_prime(x,r)
+df = x->ricker_prime(x,ρ)
 μ = lazy_μ_non_monotone(df,n₊,n₋)
 println("μ = "*string(μ)*" \n ")
 ϵ₁ = 0.3

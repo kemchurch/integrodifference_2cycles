@@ -1,6 +1,12 @@
-using RadiiPolynomial, DifferentialEquations, IntervalArithmetic
+###########################################################
+# This file contains the implementations of F and mathcalF#
+# in their float form                                     #
+###########################################################
 
-function F_manif!(F_manif::Sequence, a::Sequence, N::Vector{Int}, σ::Float64, r::Float64, equilibrium::Vector{Float64}, λ₁::Float64, λ₂::Float64, ξ₁::Vector{Float64}, ξ₂::Vector{Float64})
+using RadiiPolynomial, DifferentialEquations
+
+# Implementation of the map F
+function F_manif!(F_manif::Sequence, a::Sequence, N::Vector{Int}, σ::Float64, ρ::Float64, equilibrium::Vector{Float64}, λ₁::Float64, λ₂::Float64, ξ₁::Vector{Float64}, ξ₂::Vector{Float64})
     #Extracting what space we are in and initializaing Φ
     s = space(component(a,1));
     Φ = zeros(s^4);
@@ -25,7 +31,7 @@ function F_manif!(F_manif::Sequence, a::Sequence, N::Vector{Int}, σ::Float64, r
     Φ₄ = component(Φ, 4);
 
     #Computing Φ for higher order terms
-    Φ!(Φ, a, σ, r);
+    Φ!(Φ, a, σ, ρ);
 
     #Computing the sequence operator D = α₁λ₁ + α₂λ₂
     D₁ = zeros(s,s);
@@ -63,7 +69,8 @@ function F_manif!(F_manif::Sequence, a::Sequence, N::Vector{Int}, σ::Float64, r
     F_manif₄[(0,1)] = a₄[(0,1)] - ξ₂[4];
 end
 
-function DF_manif!(DF_manif::LinearOperator, a::Sequence, N::Vector{Int}, σ::Float64, r::Float64, equilibrium::Vector{Float64}, λ₁::Float64, λ₂::Float64, ξ₁::Vector{Float64}, ξ₂::Vector{Float64})
+# Implementation of DF
+function DF_manif!(DF_manif::LinearOperator, a::Sequence, N::Vector{Int}, σ::Float64, ρ::Float64, equilibrium::Vector{Float64}, λ₁::Float64, λ₂::Float64, ξ₁::Vector{Float64}, ξ₂::Vector{Float64})
     DF_manif .= 0
 
     s = space(component(a,1))
@@ -81,7 +88,7 @@ function DF_manif!(DF_manif::LinearOperator, a::Sequence, N::Vector{Int}, σ::Fl
     D = λ₁*D₁ + λ₂*D₂
 
     DΦ = zeros(s^4, s^4)
-    DΦ!(DΦ, a, σ, r)
+    DΦ!(DΦ, a, σ, ρ)
 
     # Setting the higher order terms
     component(DF_manif,1,1).coefficients[:] = -component(DΦ,1,1).coefficients[:] + D.coefficients[:]
@@ -146,7 +153,8 @@ function DF_manif!(DF_manif::LinearOperator, a::Sequence, N::Vector{Int}, σ::Fl
     component(DF_manif,4,4)[(0,1),(0,1)] = 1;
 end
 
-function Φ!(Φ::Sequence, a::Sequence, σ::Float64, r::Float64)
+# Implementation of Φ
+function Φ!(Φ::Sequence, a::Sequence, σ::Float64, ρ::Float64)
     #Setting all componends of Φ to be 0
     Φ .= 0;
 
@@ -163,12 +171,13 @@ function Φ!(Φ::Sequence, a::Sequence, σ::Float64, r::Float64)
 
     #Setting the appropriate values for the higher order terms
     Φ₁[:] = project(a₂, space(Φ₁))[:];
-    Φ₂[:] = project(σ^2*(a₁ - (1+r)*a₃ + r*(a₃*a₃)), space(Φ₂))[:];
+    Φ₂[:] = project(σ^2*(a₁ - (1+ρ)*a₃ + ρ*(a₃*a₃)), space(Φ₂))[:];
     Φ₃[:] = project(a₄, space(Φ₃))[:];
-    Φ₄[:] = project(σ^2*(a₃ - (1+r)*a₁ + r*(a₁*a₁)), space(Φ₄))[:];
+    Φ₄[:] = project(σ^2*(a₃ - (1+ρ)*a₁ + ρ*(a₁*a₁)), space(Φ₄))[:];
 end
 
-function DΦ!(DΦ::LinearOperator, a::Sequence, σ::Float64, r::Float64)
+# Implementation of DΦ
+function DΦ!(DΦ::LinearOperator, a::Sequence, σ::Float64, ρ::Float64)
     # Initialize DΦ to be zero, then fill in the correct blocks
     DΦ .= 0
 
@@ -181,15 +190,16 @@ function DΦ!(DΦ::LinearOperator, a::Sequence, σ::Float64, r::Float64)
     component(DΦ, 1, 2).coefficients[:] = project(I, s, s).coefficients[:]
 
     component(DΦ, 2, 1).coefficients[:] = project(σ^2*I, s, s).coefficients[:]
-    component(DΦ, 2, 3).coefficients[:] = project(-σ^2*(1+r)*I, s, s).coefficients[:] + project(σ^2* 2*r*Multiplication(a₃), s, s).coefficients[:]
+    component(DΦ, 2, 3).coefficients[:] = project(-σ^2*(1+ρ)*I, s, s).coefficients[:] + project(σ^2* 2*ρ*Multiplication(a₃), s, s).coefficients[:]
 
     component(DΦ, 3, 4).coefficients[:] = project(I, s, s).coefficients[:]
 
-    component(DΦ, 4, 1).coefficients[:] = project(-σ^2*(1+r)*I, s, s).coefficients[:] + project(σ^2* 2*r*Multiplication(a₁), s, s).coefficients[:]
+    component(DΦ, 4, 1).coefficients[:] = project(-σ^2*(1+ρ)*I, s, s).coefficients[:] + project(σ^2* 2*ρ*Multiplication(a₁), s, s).coefficients[:]
     component(DΦ, 4, 3).coefficients[:] = project(σ^2*I, s, s).coefficients[:]
 end
 
-function F_orbit!(F_orbit::Sequence, X::Sequence, a::Sequence, N_cheb::Int, σ::Float64, r::Float64)
+# Implementation of ℱ
+function F_orbit!(F_orbit::Sequence, X::Sequence, a::Sequence, N_cheb::Int, σ::Float64, ρ::Float64)
     F_orbit .= 0
 
     L = component(X,1)[1]
@@ -202,7 +212,7 @@ function F_orbit!(F_orbit::Sequence, X::Sequence, a::Sequence, N_cheb::Int, σ::
     u₄ = component(u,4)
 
     Φ = zeros(Chebyshev(N_cheb+1)^4)
-    Φ!(Φ, u, σ, r)
+    Φ!(Φ, u, σ, ρ)
 
     Φ₁ = component(Φ,1)
     Φ₂ = component(Φ,2)
@@ -254,7 +264,8 @@ function F_orbit!(F_orbit::Sequence, X::Sequence, a::Sequence, N_cheb::Int, σ::
     F_orbit_cheb₄[0] = Evaluation(-1)*u₄ - Evaluation(θ[1], θ[2])*component(a,4)
 end
 
-function DF_orbit!(DF_orbit::LinearOperator, X::Sequence, a::Sequence, N_cheb::Int, σ::Float64, r::Float64)
+# Implementation of Dℱ
+function DF_orbit!(DF_orbit::LinearOperator, X::Sequence, a::Sequence, N_cheb::Int, σ::Float64, ρ::Float64)
     DF_orbit .= 0
 
     L = component(X,1)[1]
@@ -262,10 +273,10 @@ function DF_orbit!(DF_orbit::LinearOperator, X::Sequence, a::Sequence, N_cheb::I
     u = component(X,3)
 
     Φ = zeros(Chebyshev(N_cheb+1)^4)
-    Φ!(Φ, project(u, Chebyshev(N_cheb+1)^4), σ, r)
+    Φ!(Φ, project(u, Chebyshev(N_cheb+1)^4), σ, ρ)
 
     DΦ = zeros(Chebyshev(N_cheb+1)^4,Chebyshev(N_cheb+1)^4)
-    DΦ!(DΦ, project(u, Chebyshev(N_cheb+1)^4), σ, r)
+    DΦ!(DΦ, project(u, Chebyshev(N_cheb+1)^4), σ, ρ)
 
     # Constructing operator (Du)ₖ = 2k uₖ
     D = zeros(Chebyshev(N_cheb), Chebyshev(N_cheb))
@@ -282,37 +293,37 @@ function DF_orbit!(DF_orbit::LinearOperator, X::Sequence, a::Sequence, N_cheb::I
         T[k,k+1] = -1
     end
 
-    # D_L F_L
+    # D_L ℒ
     # No dependence
 
-    # D_θ F_L
+    # D_θ ℒ
     component(DF_orbit,1,2)[1,1] = 2*θ[1]
     component(DF_orbit,1,2)[1,2] = 2*θ[2]
 
-    # D_u F_L
+    # D_u ℒ
     # No dependence
 
-    # D_L F_θ
+    # D_L Θ
     # No dependence
 
-    # D_θ F_θ
+    # D_θ Θ
     # No dependence
 
-    # D_u F_θ
+    # D_u Θ
     component(component(DF_orbit,2,3),1,1).coefficients[:] = project(Evaluation(1), Chebyshev(N_cheb), ParameterSpace()).coefficients[:]
     component(component(DF_orbit,2,3),1,3).coefficients[:] = -project(Evaluation(1), Chebyshev(N_cheb), ParameterSpace()).coefficients[:]
 
     component(component(DF_orbit,2,3),2,2).coefficients[:] = project(Evaluation(1), Chebyshev(N_cheb), ParameterSpace()).coefficients[:]
     component(component(DF_orbit,2,3),2,4).coefficients[:] = project(Evaluation(1), Chebyshev(N_cheb), ParameterSpace()).coefficients[:]
 
-    # D_L F_u
+    # D_L 𝒰
     # Higher order terms
     component(component(DF_orbit,3,1),1).coefficients[2:end] = (T * component(Φ,1)).coefficients[2:end]
     component(component(DF_orbit,3,1),2).coefficients[2:end] = (T * component(Φ,2)).coefficients[2:end]
     component(component(DF_orbit,3,1),3).coefficients[2:end] = (T * component(Φ,3)).coefficients[2:end]
     component(component(DF_orbit,3,1),4).coefficients[2:end] = (T * component(Φ,4)).coefficients[2:end]
 
-    # D_θ F_u
+    # D_θ 𝒰
     # Initial terms
     component(component(DF_orbit,3,2),1,1).coefficients[1] = -(Evaluation(θ[1], θ[2]) * (Derivative(1,0) * component(a,1)))
     component(component(DF_orbit,3,2),2,1).coefficients[1] = -(Evaluation(θ[1], θ[2]) * (Derivative(1,0) * component(a,2)))
@@ -324,7 +335,7 @@ function DF_orbit!(DF_orbit::LinearOperator, X::Sequence, a::Sequence, N_cheb::I
     component(component(DF_orbit,3,2),3,2).coefficients[1] = -(Evaluation(θ[1], θ[2]) * (Derivative(0,1) * component(a,3)))
     component(component(DF_orbit,3,2),4,2).coefficients[1] = -(Evaluation(θ[1], θ[2]) * (Derivative(0,1) * component(a,4)))
     
-    # D_u F_u
+    # D_u 𝒰
     # Higher order terms
     component(component(DF_orbit,3,3),1,1).coefficients[:] = (L * T * project(component(DΦ,1,1), Chebyshev(N_cheb), Chebyshev(N_cheb+1))).coefficients[:] + D.coefficients[:]
     component(component(DF_orbit,3,3),2,1).coefficients[:] = (L * T * project(component(DΦ,2,1), Chebyshev(N_cheb), Chebyshev(N_cheb+1))).coefficients[:]
